@@ -1,22 +1,27 @@
 import { useLoaderData } from "@remix-run/react";
+import { formCollection } from "~/repository/db";
 
 export const loader = async () => {
-  const formIds = ["1", "2", "3"];
+  const forms = await formCollection.find().toArray();
 
-  return { formIds };
+  return { forms };
 };
 
 export default function Index() {
-  const { formIds } = useLoaderData<typeof loader>();
+  const { forms } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex flex-col h-screen items-center justify-center">
       <h1 className="text-4xl font-bold">Welcome to Remix!</h1>
       <ul>
-        {formIds.map((id) => (
-          <li key={id}>
-            <a href={`/forms/${id}`} className="text-blue-500 hover:underline">
-              Form {id}
+        {forms.map((form) => (
+          // @ts-expect-error toString() is undefined
+          <li key={form._id.toString()}>
+            <a
+              href={`/forms/${form._id}`}
+              className="text-blue-500 hover:underline"
+            >
+              {form.title}
             </a>
           </li>
         ))}

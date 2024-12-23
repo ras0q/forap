@@ -1,7 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form as RemixForm, useLoaderData } from "@remix-run/react";
 import { FormComponentList } from "~/components/FormComponentList";
-import { Form } from "../types/form";
+import { formCollection } from "~/repository/db";
+import { ObjectId } from "mongodb";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const formId = params.formId;
@@ -9,9 +10,10 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
-  // TODO: Fetch data from the server
-  const form: Form = {
-    id: formId,
+  const form = (await formCollection.findOne({
+    _id: new ObjectId(formId),
+  })) ?? {
+    _id: new ObjectId(formId),
     title: "New Feedback Form",
     channelId: "123",
     components: [
@@ -48,7 +50,7 @@ export default function Index() {
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-4xl font-bold">{form.title}</h1>
-      <RemixForm key={form.id} method="post" className="w-96 space-y-4">
+      <RemixForm method="post" className="w-96 space-y-4">
         <FormComponentList components={form.components} />
         <button
           type="submit"

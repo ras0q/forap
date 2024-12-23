@@ -3,13 +3,24 @@ import { Form as RemixForm } from "@remix-run/react";
 import { useState } from "react";
 import { FormComponentList } from "~/components/FormComponentList";
 import { Modal } from "~/components/NewFormModal";
-import { FormComponent, FormComponentType } from "~/types/form";
+import { formCollection } from "~/repository/db";
+import { Form, FormComponent, FormComponentType } from "~/types/form";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const components = JSON.parse(formData.get("components") as string);
-  console.log("Form submitted", components);
-  return new Response(null, { status: 201 });
+  const title = formData.get("title") as string;
+  const channelId = formData.get("channelId") as string;
+  const components = JSON.parse(
+    formData.get("components") as string
+  ) as FormComponent[];
+  const form: Form = { title, channelId, components };
+
+  const { insertedId } = await formCollection.insertOne(form);
+
+  return new Response(null, {
+    status: 302,
+    headers: { Location: `/forms/${insertedId}` },
+  });
 };
 
 export default function CreateForm() {
@@ -22,6 +33,18 @@ export default function CreateForm() {
       className="flex flex-col gap-8 max-w-2xl w-full px-8"
     >
       <h1 className="text-4xl font-bold">フォームを作成</h1>
+      <input
+        type="text"
+        name="title"
+        placeholder="タイトル"
+        className="w-full p-2 border rounded-md"
+      />
+      <input
+        type="text"
+        name="channelId"
+        placeholder="チャンネルID"
+        className="w-full p-2 border rounded-md"
+      />
       {components.length > 0 && <FormComponentList components={components} />}
       <div className="grid grid-cols-2 gap-4">
         <button

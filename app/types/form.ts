@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export interface Form {
-  id: string;
+  _id?: ObjectId;
   title: string;
   channelId: string;
   components: FormComponent[];

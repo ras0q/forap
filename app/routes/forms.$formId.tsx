@@ -10,30 +10,13 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
-  const form = (await formCollection.findOne({
+  const form = await formCollection.findOne({
     _id: new ObjectId(formId),
-  })) ?? {
-    _id: new ObjectId(formId),
-    title: "New Feedback Form",
-    channelId: "123",
-    components: [
-      {
-        type: "text",
-        label: "Name",
-        placeholder: "Enter your name",
-      },
-      {
-        type: "select",
-        label: "Favorite Color",
-        options: ["Red", "Green", "Blue"],
-      },
-      {
-        type: "checkbox",
-        label: "Favorite Foods",
-        options: ["Pizza", "Tacos", "Sushi", "Burgers"],
-      },
-    ],
-  };
+  });
+
+  if (!form) {
+    throw new Response("Not Found", { status: 404 });
+  }
 
   return { form };
 };
